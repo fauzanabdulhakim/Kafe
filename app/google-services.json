@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "979185525291",
+    "firebase_url": "https://kafe-fb622.firebaseio.com",
+    "project_id": "kafe-fb622",
+    "storage_bucket": "kafe-fb622.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:979185525291:android:a7c47cd77c5c8ce446c06e",
+        "android_client_info": {
+          "package_name": "com.fauzan.kafe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "979185525291-932nagio1768mc5n6dc5t7iqce87vf4t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fauzan.kafe",
+            "certificate_hash": "b5d7e6022f5370f5099f48ca6ecb0780afe58cf9"
+          }
+        },
+        {
+          "client_id": "979185525291-ionn55bvfijd6ajjvpfmh37sf997tbth.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQkK7XBC9ymMFxvpyEy3-Bpqvgc1ZyDmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "979185525291-ionn55bvfijd6ajjvpfmh37sf997tbth.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
