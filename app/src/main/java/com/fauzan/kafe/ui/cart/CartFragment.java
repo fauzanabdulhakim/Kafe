@@ -1,4 +1,4 @@
-package com.fauzan.kafe.ui.share;
+package com.fauzan.kafe.ui.cart;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,15 +14,15 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.fauzan.kafe.R;
 
-public class ShareFragment extends Fragment {
+public class ChartFragment extends Fragment {
 
-    private ShareViewModel shareViewModel;
+    private ChartViewModel shareViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         shareViewModel =
-                ViewModelProviders.of(this).get(ShareViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_share, container, false);
+                ViewModelProviders.of(this).get(ChartViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_chart, container, false);
         final TextView textView = root.findViewById(R.id.text_share);
         shareViewModel.getText().observe(this, new Observer<String>() {
             @Override

@@ -1,14 +1,14 @@
-package com.fauzan.kafe.ui.share;
+package com.fauzan.kafe.ui.cart;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ShareViewModel extends ViewModel {
+public class ChartViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public ShareViewModel() {
+    public ChartViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is share fragment");
     }
