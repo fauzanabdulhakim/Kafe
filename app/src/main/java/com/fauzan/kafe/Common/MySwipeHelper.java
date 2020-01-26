@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-public abstract class MySwiperHelper extends ItemTouchHelper.SimpleCallback {
+public abstract class MySwipeHelper extends ItemTouchHelper.SimpleCallback {
 
     int buttonWidth;
     private RecyclerView recyclerView;
@@ -72,7 +72,7 @@ public abstract class MySwiperHelper extends ItemTouchHelper.SimpleCallback {
         return false;
     };
 
-    public MySwiperHelper(Context context, RecyclerView recyclerView, int buttonWidth) {
+    public MySwipeHelper(Context context, RecyclerView recyclerView, int buttonWidth) {
         super(0, ItemTouchHelper.LEFT);
         this.recyclerView = recyclerView;
         this.buttonList = new ArrayList<>();

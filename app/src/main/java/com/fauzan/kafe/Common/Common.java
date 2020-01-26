@@ -1,11 +1,14 @@
 package com.fauzan.kafe.Common;
 
+import com.fauzan.kafe.Model.AddonModel;
 import com.fauzan.kafe.Model.CategoryModel;
 import com.fauzan.kafe.Model.FoodModel;
+import com.fauzan.kafe.Model.SizeModel;
 import com.fauzan.kafe.Model.UserModel;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.List;
 
 public class Common {
     public static final String USER_REFERENCES = "Users" ;
@@ -29,5 +32,30 @@ public class Common {
         }
         else
             return "0,00";
+    }
+
+    public static Double calculateExtraPrice(SizeModel userSelectedSize, List<AddonModel> userSelectedAddon) {
+        Double result = 0.0;
+        if (userSelectedSize == null && userSelectedAddon == null)
+            return 0.0;
+        else if (userSelectedSize == null)
+        {
+            // If userSelectedAddon != null , we need sum price
+            for (AddonModel addonModel : userSelectedAddon)
+                result+=addonModel.getPrice();
+            return result;
+        }
+        else if (userSelectedAddon == null)
+        {
+            return userSelectedSize.getPrice() * 1.0;
+        }
+        else
+        {
+            //if both size and addon is select
+            result = userSelectedSize.getPrice()*1.0;
+            for (AddonModel addonModel : userSelectedAddon)
+                result+=addonModel.getPrice();
+            return result;
+        }
     }
 }
