@@ -62,17 +62,22 @@ public abstract class MySwipeHelper extends ItemTouchHelper.SimpleCallback {
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN ||
                 motionEvent.getAction() == MotionEvent.ACTION_UP ||
                 motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-            if (rect.top < point.y && rect.bottom > point.y) {
+            if (rect.top < point.y && rect.bottom > point.y)
+            {
                 gestureDetector.onTouchEvent(motionEvent);
-            } else {
+            }
+            else
+            {
                 removeQueue.add(swipePosition);
                 swipePosition = -1;
             }
+
         }
         return false;
     };
 
-    public MySwipeHelper(Context context, RecyclerView recyclerView, int buttonWidth) {
+    public MySwipeHelper(Context context, RecyclerView recyclerView, int buttonWidth)
+    {
         super(0, ItemTouchHelper.LEFT);
         this.recyclerView = recyclerView;
         this.buttonList = new ArrayList<>();
@@ -124,7 +129,8 @@ public abstract class MySwipeHelper extends ItemTouchHelper.SimpleCallback {
         }
 
         public boolean onClick(float x, float y) {
-            if (clicRegion != null && clicRegion.contains(x, y)) {
+            if (clicRegion != null && clicRegion.contains(x, y))
+            {
                 listener.onClick(pos);
                 return true;
             }
@@ -188,7 +194,7 @@ public abstract class MySwipeHelper extends ItemTouchHelper.SimpleCallback {
         else
             buttonList.clear();
         buttonBuffer.clear();
-        swipeThreshold = 0.5f * buttonList.size() * buttonWidth;
+        swipeThreshold = 0.5f * buttonList.size()*buttonWidth;
         recoverSwipedItem();
     }
 
