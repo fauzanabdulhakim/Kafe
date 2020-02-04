@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 
 import com.fauzan.kafe.Common.Common;
+import com.fauzan.kafe.Model.BraintreeToken;
 import com.fauzan.kafe.Model.UserModel;
 import com.fauzan.kafe.Remote.ICloudFunction;
 import com.fauzan.kafe.Remote.RetrofitCloudClient;
@@ -24,10 +25,12 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,7 +44,9 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
 import io.reactivex.Scheduler;
@@ -130,20 +135,37 @@ public class MainActivity extends AppCompatActivity {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists())
-                        {
-                            Toast.makeText(MainActivity.this,"You already registed",Toast.LENGTH_SHORT).show();
+                        if (dataSnapshot.exists()) {
 
-                            UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                            FirebaseAuth.getInstance().getCurrentUser()
+                                    .getIdToken(true)
+                                    .addOnFailureListener(e -> Toast.makeText(MainActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show())
+                                    .addOnCompleteListener(tokenResultTask -> {
+                                        Common.authorizeKey = tokenResultTask.getResult().getToken();
 
-                            goToHomeActivity(userModel);
-                        }
-                        else
-                        {
+                                        Map<String,String> headers = new HashMap<>();
+                                        headers.put("Authorization",Common.buildToken(Common.authorizeKey));
+
+                                        compositeDisposable.add(cloudFunction.getToken(headers)
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe(braintreeToken -> {
+
+                                                    dialog.dismiss();
+                                                    UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                                                    goToHomeActivity(userModel,braintreeToken.getToken());
+
+                                                }, throwable -> {
+                                                    dialog.dismiss();
+                                                    Toast.makeText(MainActivity.this, ""+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }));
+                                    });
+
+                        } else {
                             showRegisterDialog(user);
+                            dialog.dismiss();
                         }
 
-                        dialog.dismiss();
                     }
 
                     @Override
@@ -186,16 +208,33 @@ public class MainActivity extends AppCompatActivity {
             userModel.setAddress(edt_address.getText().toString());
             userModel.setPhone(edt_phone.getText().toString());
 
-            userRef.child(user.getUid()).setValue(userModel)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful())
-                            {
-                                dialogInterface.dismiss();
-                                Toast.makeText(MainActivity.this,"Register Success",Toast.LENGTH_SHORT).show();
-                                goToHomeActivity(userModel);
-                            }
+            userRef.child(user.getUid())
+                    .setValue(userModel)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+
+                            FirebaseAuth.getInstance().getCurrentUser()
+                                    .getIdToken(true)
+                                    .addOnFailureListener(e -> Toast.makeText(MainActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show())
+                                    .addOnCompleteListener(tokenResultTask -> {
+                                        Common.authorizeKey = tokenResultTask.getResult().getToken();
+                                        Map<String,String> headers = new HashMap<>();
+                                        headers.put("Authorization",Common.buildToken(Common.authorizeKey));
+                                        compositeDisposable.add(cloudFunction.getToken(headers)
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe(braintreeToken -> {
+
+                                                    dialogInterface.dismiss();
+                                                    Toast.makeText(MainActivity.this,"Congratilation ! Register Success",Toast.LENGTH_SHORT).show();
+                                                    goToHomeActivity(userModel,braintreeToken.getToken());
+
+                                                }, throwable -> {
+                                                    dialog.dismiss();
+                                                    Toast.makeText(MainActivity.this, ""+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }));
+                                    });
+
                         }
                     });
 
@@ -207,10 +246,13 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void goToHomeActivity(UserModel userModel) {
+    private void goToHomeActivity(UserModel userModel,String token) {
         Common.currentUser = userModel;  //Important , you need always assign value for it before use
+        Common.currentToken = token;
         startActivity(new Intent(MainActivity.this,HomeActivity.class));
         finish();
+
+
     }
 
     private void phoneLogin() {

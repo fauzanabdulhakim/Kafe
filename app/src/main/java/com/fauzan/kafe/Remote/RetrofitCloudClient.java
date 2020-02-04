@@ -11,7 +11,7 @@ public class RetrofitCloudClient {
     public static Retrofit getInstance(){
         if(instance == null)
             instance = new Retrofit.Builder()
-                    .baseUrl("https://us-central1-kafe-fb622.cloudfunctions.net/")
+                    .baseUrl("https://us-central1-kafe-fb622.cloudfunctions.net/widgets/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build();

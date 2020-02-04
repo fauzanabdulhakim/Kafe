@@ -10,6 +10,7 @@ public class Order {
     private boolean cod;
     private int discount;
     private List<CartItem> cartItemList;
+    private long createData;
 
     public Order() {
     }
@@ -116,5 +117,13 @@ public class Order {
 
     public void setCartItemList(List<CartItem> cartItemList) {
         this.cartItemList = cartItemList;
+    }
+
+    public long getCreateData() {
+        return createData;
+    }
+
+    public void setCreateData(long createData) {
+        this.createData = createData;
     }
 }

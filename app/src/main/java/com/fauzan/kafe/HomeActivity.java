@@ -413,4 +413,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     }
                 });
     }
+
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void countCartAgain(CounterCartEvent event)
+    {
+        if (event.isSuccess())
+            countCartItem();
+    }
 }

@@ -1,7 +1,9 @@
 package com.fauzan.kafe.ui.cart;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -9,6 +11,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,7 +35,11 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.braintreepayments.api.dropin.DropInRequest;
+import com.braintreepayments.api.dropin.DropInResult;
+import com.braintreepayments.api.models.PaymentMethodNonce;
 import com.fauzan.kafe.Adapter.MyCartAdapter;
+import com.fauzan.kafe.Callback.ILoadTimeFromFirebaseListener;
 import com.fauzan.kafe.Common.Common;
 import com.fauzan.kafe.Common.MySwipeHelper;
 import com.fauzan.kafe.Database.CartDataSource;
@@ -41,8 +49,11 @@ import com.fauzan.kafe.Database.LocalCartDataSource;
 import com.fauzan.kafe.EventBus.CounterCartEvent;
 import com.fauzan.kafe.EventBus.HideFABCart;
 import com.fauzan.kafe.EventBus.UpdateItemInCart;
+import com.fauzan.kafe.Model.BraintreeTransaction;
 import com.fauzan.kafe.Model.Order;
 import com.fauzan.kafe.R;
+import com.fauzan.kafe.Remote.ICloudFunction;
+import com.fauzan.kafe.Remote.RetrofitCloudClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -51,15 +62,23 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,8 +93,9 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class CartFragment extends Fragment {
+public class CartFragment extends Fragment implements ILoadTimeFromFirebaseListener {
 
+    private static final int REQUEST_BRAINTREE_CODE = 7777;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private Parcelable recyclerViewState;
@@ -85,6 +105,11 @@ public class CartFragment extends Fragment {
     LocationCallback locationCallback;
     FusedLocationProviderClient fusedLocationProviderClient;
     Location currentLocation;
+
+    String address,comment;
+
+    ICloudFunction cloudFunction;
+    ILoadTimeFromFirebaseListener listener;
 
     @BindView(R.id.recycler_cart)
     RecyclerView recycler_cart;
@@ -179,6 +204,16 @@ public class CartFragment extends Fragment {
            // Toast.makeText(getContext(), "Implement late!", Toast.LENGTH_SHORT).show();
             if (rdi_cod.isChecked())
                 paymentCOD(edt_address.getText().toString(),edt_comment.getText().toString());
+            else if (rdi_braintree.isChecked())
+            {
+                address = edt_address.getText().toString();
+                comment = edt_comment.getText().toString();
+                if (!TextUtils.isEmpty(Common.currentToken))
+                {
+                    DropInRequest dropInRequest = new DropInRequest().clientToken(Common.currentToken);
+                    startActivityForResult(dropInRequest.getIntent(getContext()),REQUEST_BRAINTREE_CODE);
+                }
+            }
         });
 
         AlertDialog dialog = builder.create();
@@ -230,7 +265,7 @@ public class CartFragment extends Fragment {
                             order.setTransactionId("Cash On Delivery");
 
                             //Submit this order object to Firebase
-                            writeOrderToFirebase(order);
+                            syncLocalTimeWithGlobaltime(order);
                         }
 
                         @Override
@@ -242,6 +277,27 @@ public class CartFragment extends Fragment {
         }, throwable -> {
             Toast.makeText(getContext(), ""+throwable.getMessage(), Toast.LENGTH_SHORT).show();
         }));
+    }
+
+    private void syncLocalTimeWithGlobaltime(Order order) {
+        final DatabaseReference offsetRef = FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset");
+        offsetRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                long offset = dataSnapshot.getValue(Long.class);
+                long estimatedServerTimeMs = System.currentTimeMillis()+offset; // offset is missing time between your local time and server time
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+                Date resultDate = new Date(estimatedServerTimeMs);
+                Log.d("TEST_DATE",""+sdf.format(resultDate));
+
+                listener.onLoadTimeSucces(order,estimatedServerTimeMs);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                listener.onLoadTimeFailed(databaseError.getMessage());
+            }
+        });
     }
 
     private void writeOrderToFirebase(Order order) {
@@ -266,6 +322,7 @@ public class CartFragment extends Fragment {
                                 public void onSuccess(Integer integer) {
                                     //Clean success
                                     Toast.makeText(getContext(), "Order placed Successfully!", Toast.LENGTH_SHORT).show();
+                                    EventBus.getDefault().postSticky(new CounterCartEvent(true));
                                 }
 
                                 @Override
@@ -308,6 +365,10 @@ public class CartFragment extends Fragment {
         cartViewModel =
                 ViewModelProviders.of(this).get(CartViewModel.class);
         View root = inflater.inflate(R.layout.fragment_cart, container, false);
+
+        cloudFunction = RetrofitCloudClient.getInstance().create(ICloudFunction.class);
+        listener = this;
+
         cartViewModel.initCartDataSource(getContext());
         cartViewModel.getMutableLiveDataCartItems().observe(this, new Observer<List<CartItem>>() {
             @Override
@@ -550,5 +611,109 @@ public class CartFragment extends Fragment {
                         Toast.makeText(getContext(), "[SUM CART]"+e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_BRAINTREE_CODE)
+        {
+            if (resultCode == Activity.RESULT_OK)
+            {
+                DropInResult result = data.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
+                PaymentMethodNonce nonce = result.getPaymentMethodNonce();
+
+                //calculate sum cart
+                cartDataSource.sumPriceInCart(Common.currentUser.getUid())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<Double>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(Double totalPrice) {
+
+                                //Get all item in Cart to create order
+                                compositeDisposable.add(cartDataSource.getAllCart(Common.currentUser.getUid())
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(cartItems -> {
+
+                                            //Submit payment
+                                            Map<String,String> headers = new HashMap<>();
+                                            headers.put("Authorization",Common.buildToken(Common.authorizeKey));
+                                            compositeDisposable.add(cloudFunction.submitPayment(
+                                                    headers,
+                                                    totalPrice,
+                                                    nonce.getNonce())
+                                                    .subscribeOn(Schedulers.io())
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe(braintreeTransaction -> {
+
+                                                        if (braintreeTransaction.isSuccess())
+                                                        {
+                                                            double finalPrice = totalPrice; // We will modify this formula for discount late
+                                                            Order order = new Order();
+                                                            order.setUserId(Common.currentUser.getUid());
+                                                            order.setUserName(Common.currentUser.getName());
+                                                            order.setUserPhone(Common.currentUser.getPhone());
+                                                            order.setShippingAddress(address);
+                                                            order.setComment(comment);
+
+                                                            if (currentLocation != null)
+                                                            {
+                                                                order.setLat(currentLocation.getLatitude());
+                                                                order.setLng(currentLocation.getLongitude());
+                                                            }
+                                                            else
+                                                            {
+                                                                order.setLat( 0.1f);
+                                                                order.setLng(-0.1f);
+                                                            }
+
+                                                            order.setCartItemList(cartItems);
+                                                            order.setTotalPayment(totalPrice);
+                                                            order.setDiscount(0); // Modify with discount late
+                                                            order.setFinalPayment(finalPrice);
+                                                            order.setCod(false);
+                                                            order.setTransactionId(braintreeTransaction.getTransaction().getId());
+
+                                                            //Submit this order object to Firebase
+                                                            //writeOrderToFirebase(order);
+                                                            syncLocalTimeWithGlobaltime(order);
+                                                        }
+
+                                                    }, throwable -> {
+                                                        Toast.makeText(getContext(), ""+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    })
+                                            );
+
+                                        }, throwable -> {
+                                            Toast.makeText(getContext(), ""+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }));
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Toast.makeText(getContext(), ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        }
+    }
+
+    @Override
+    public void onLoadTimeSucces(Order order, long estimateTimeInMs) {
+        order.setCreateData(estimateTimeInMs);
+        writeOrderToFirebase(order);
+    }
+
+    @Override
+    public void onLoadTimeFailed(String message) {
+        Toast.makeText(getContext(), ""+message, Toast.LENGTH_SHORT).show();
     }
 }

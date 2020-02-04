@@ -30,6 +30,8 @@ public class Common {
     public static UserModel currentUser;
     public static CategoryModel categorySelected;
     public static FoodModel selectedFood;
+    public static String currentToken="";
+    public static String authorizeKey="";
 
     public static String formatPrice(double price) {
         if (price != 0)
@@ -83,5 +85,9 @@ public class Common {
                 .append(System.currentTimeMillis()) // Get current time in millisecond
                 .append(Math.abs(new Random().nextInt())) // Add random number to block same order at same time
                 .toString();
+    }
+
+    public static String buildToken(String authorizeKey) {
+        return new StringBuilder("Bearer").append(" ").append(authorizeKey).toString();
     }
 }
