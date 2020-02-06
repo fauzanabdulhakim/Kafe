@@ -10,7 +10,9 @@ public class Order {
     private boolean cod;
     private int discount;
     private List<CartItem> cartItemList;
-    private long createData;
+    private long createDate;
+    private String orderNumber;
+    private int orderStatus;
 
     public Order() {
     }
@@ -119,11 +121,27 @@ public class Order {
         this.cartItemList = cartItemList;
     }
 
-    public long getCreateData() {
-        return createData;
+    public long getCreateDate() {
+        return createDate;
     }
 
-    public void setCreateData(long createData) {
-        this.createData = createData;
+    public void setCreateDate(long createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public int getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(int orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }

@@ -14,6 +14,7 @@ import com.fauzan.kafe.EventBus.CategoryClick;
 import com.fauzan.kafe.EventBus.CounterCartEvent;
 import com.fauzan.kafe.EventBus.FoodItemClick;
 import com.fauzan.kafe.EventBus.HideFABCart;
+import com.fauzan.kafe.EventBus.MenuItemBack;
 import com.fauzan.kafe.EventBus.PopularCategoryClick;
 import com.fauzan.kafe.Model.CategoryModel;
 import com.fauzan.kafe.Model.FoodModel;
@@ -68,6 +69,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     android.app.AlertDialog dialog;
 
+    int menuClickId=-1;
+
     @BindView(R.id.fab)
     CounterFab fab;
 
@@ -104,7 +107,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_menu, R.id.nav_food_detail,
-                R.id.nav_tools, R.id.nav_cart, R.id.nav_food_list)
+                R.id.nav_view_orders, R.id.nav_cart, R.id.nav_food_list)
                 .setDrawerLayout(drawer)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -141,18 +144,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawers();
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
-                navController.navigate(R.id.nav_home);
+                if (menuItem.getItemId() !=menuClickId)
+                    navController.navigate(R.id.nav_home);
                 break;
             case R.id.nav_menu:
-                navController.navigate(R.id.nav_menu);
+                if (menuItem.getItemId() !=menuClickId)
+                    navController.navigate(R.id.nav_menu);
                 break;
             case R.id.nav_cart:
-                navController.navigate(R.id.nav_cart);
+                if (menuItem.getItemId() !=menuClickId)
+                    navController.navigate(R.id.nav_cart);
+                break;
+            case R.id.nav_view_orders:
+                if (menuItem.getItemId() !=menuClickId)
+                    navController.navigate(R.id.nav_view_orders);
                 break;
             case R.id.nav_sign_out:
                 signOut();
                 break;
         }
+        menuClickId = menuItem.getItemId();
         return true;
     }
 
@@ -419,5 +430,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     {
         if (event.isSuccess())
             countCartItem();
+    }
+
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void onMenuItemBack(MenuItemBack event)
+    {
+        menuClickId = -1;
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0)
+            getSupportFragmentManager().popBackStack();
     }
 }

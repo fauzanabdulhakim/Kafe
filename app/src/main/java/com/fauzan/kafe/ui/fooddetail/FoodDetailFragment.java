@@ -35,6 +35,7 @@ import com.fauzan.kafe.Database.CartDatabase;
 import com.fauzan.kafe.Database.CartItem;
 import com.fauzan.kafe.Database.LocalCartDataSource;
 import com.fauzan.kafe.EventBus.CounterCartEvent;
+import com.fauzan.kafe.EventBus.MenuItemBack;
 import com.fauzan.kafe.Model.AddonModel;
 import com.fauzan.kafe.Model.CommentModel;
 import com.fauzan.kafe.Model.FoodModel;
@@ -529,5 +530,11 @@ public class FoodDetailFragment extends Fragment implements TextWatcher {
     public void onStop() {
         compositeDisposable.clear();
         super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().postSticky(new MenuItemBack());
+        super.onDestroy();
     }
 }

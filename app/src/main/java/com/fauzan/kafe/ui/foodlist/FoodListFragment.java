@@ -19,8 +19,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fauzan.kafe.Adapter.MyFoodListAdapter;
 import com.fauzan.kafe.Common.Common;
+import com.fauzan.kafe.EventBus.MenuItemBack;
 import com.fauzan.kafe.Model.FoodModel;
 import com.fauzan.kafe.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -69,5 +72,11 @@ public class FoodListFragment extends Fragment {
         recycler_food_list.setLayoutManager(new LinearLayoutManager(getContext()));
 
         layoutAnimationController = AnimationUtils.loadLayoutAnimation(getContext(),R.anim.layout_item_from_left);
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().postSticky(new MenuItemBack());
+        super.onDestroy();
     }
 }

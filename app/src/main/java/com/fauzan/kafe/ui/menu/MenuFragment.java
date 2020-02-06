@@ -22,7 +22,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.fauzan.kafe.Adapter.MyCategoriesAdapter;
 import com.fauzan.kafe.Common.Common;
 import com.fauzan.kafe.Common.SpacesItemDecoration;
+import com.fauzan.kafe.EventBus.MenuItemBack;
 import com.fauzan.kafe.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -85,5 +88,11 @@ public class MenuFragment extends Fragment {
 
         recycler_menu.setLayoutManager(layoutManager);
         recycler_menu.addItemDecoration(new SpacesItemDecoration(8));
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().postSticky(new MenuItemBack());
+        super.onDestroy();
     }
 }

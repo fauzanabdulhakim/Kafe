@@ -26,6 +26,14 @@
 
     </group>
 
+    <group android:id="@+id/view_orders_group">
+        <item
+            android:id="@+id/nav_view_orders"
+            android:icon="@drawable/ic_view_headline_black_24dp"
+            android:title="@string/menu_view_orders" />
+
+    </group>
+
     <group android:id="@+id/user_group">
         <item
             android:id="@+id/nav_sign_out"

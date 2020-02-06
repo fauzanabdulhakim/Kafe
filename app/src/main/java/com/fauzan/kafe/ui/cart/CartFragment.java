@@ -48,6 +48,7 @@ import com.fauzan.kafe.Database.CartItem;
 import com.fauzan.kafe.Database.LocalCartDataSource;
 import com.fauzan.kafe.EventBus.CounterCartEvent;
 import com.fauzan.kafe.EventBus.HideFABCart;
+import com.fauzan.kafe.EventBus.MenuItemBack;
 import com.fauzan.kafe.EventBus.UpdateItemInCart;
 import com.fauzan.kafe.Model.BraintreeTransaction;
 import com.fauzan.kafe.Model.Order;
@@ -708,12 +709,19 @@ public class CartFragment extends Fragment implements ILoadTimeFromFirebaseListe
 
     @Override
     public void onLoadTimeSucces(Order order, long estimateTimeInMs) {
-        order.setCreateData(estimateTimeInMs);
+        order.setCreateDate(estimateTimeInMs);
+        order.setOrderStatus(0);
         writeOrderToFirebase(order);
     }
 
     @Override
     public void onLoadTimeFailed(String message) {
         Toast.makeText(getContext(), ""+message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().postSticky(new MenuItemBack());
+        super.onDestroy();
     }
 }
