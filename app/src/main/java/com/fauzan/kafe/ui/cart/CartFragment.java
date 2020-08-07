@@ -2,7 +2,6 @@ package com.fauzan.kafe.ui.cart;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
@@ -19,13 +18,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -50,8 +47,7 @@ import com.fauzan.kafe.EventBus.CounterCartEvent;
 import com.fauzan.kafe.EventBus.HideFABCart;
 import com.fauzan.kafe.EventBus.MenuItemBack;
 import com.fauzan.kafe.EventBus.UpdateItemInCart;
-import com.fauzan.kafe.Model.BraintreeTransaction;
-import com.fauzan.kafe.Model.Order;
+import com.fauzan.kafe.Model.OrderModel;
 import com.fauzan.kafe.R;
 import com.fauzan.kafe.Remote.ICloudFunction;
 import com.fauzan.kafe.Remote.RetrofitCloudClient;
@@ -60,9 +56,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -90,7 +83,6 @@ import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -240,7 +232,7 @@ public class CartFragment extends Fragment implements ILoadTimeFromFirebaseListe
                         @Override
                         public void onSuccess(Double totalPrice) {
                             double finalPrice = totalPrice; // We will modify this formula for discount late
-                            Order order = new Order();
+                            OrderModel order = new OrderModel();
                             order.setUserId(Common.currentUser.getUid());
                             order.setUserName(Common.currentUser.getName());
                             order.setUserPhone(Common.currentUser.getPhone());
@@ -280,7 +272,7 @@ public class CartFragment extends Fragment implements ILoadTimeFromFirebaseListe
         }));
     }
 
-    private void syncLocalTimeWithGlobaltime(Order order) {
+    private void syncLocalTimeWithGlobaltime(OrderModel order) {
         final DatabaseReference offsetRef = FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset");
         offsetRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -301,7 +293,7 @@ public class CartFragment extends Fragment implements ILoadTimeFromFirebaseListe
         });
     }
 
-    private void writeOrderToFirebase(Order order) {
+    private void writeOrderToFirebase(OrderModel order) {
         FirebaseDatabase.getInstance()
                 .getReference(Common.ORDER_REF)
                 .child(Common.createOrderNumber()) // Create order number with only digit
@@ -657,7 +649,7 @@ public class CartFragment extends Fragment implements ILoadTimeFromFirebaseListe
                                                         if (braintreeTransaction.isSuccess())
                                                         {
                                                             double finalPrice = totalPrice; // We will modify this formula for discount late
-                                                            Order order = new Order();
+                                                            OrderModel order = new OrderModel();
                                                             order.setUserId(Common.currentUser.getUid());
                                                             order.setUserName(Common.currentUser.getName());
                                                             order.setUserPhone(Common.currentUser.getPhone());
@@ -708,7 +700,7 @@ public class CartFragment extends Fragment implements ILoadTimeFromFirebaseListe
     }
 
     @Override
-    public void onLoadTimeSucces(Order order, long estimateTimeInMs) {
+    public void onLoadTimeSucces(OrderModel order, long estimateTimeInMs) {
         order.setCreateDate(estimateTimeInMs);
         order.setOrderStatus(0);
         writeOrderToFirebase(order);

@@ -46,9 +46,10 @@ public class Common {
     public static final int FULL_WIDTH_COLUMN = 1;
     public static final String CATEGORY_REF = "Category";
     public static final String COMMENT_REF = "Comments";
-    public static final String ORDER_REF = "Orders";
+    public static final String ORDER_REF = "Order";
     public static final String NOTI_TITLE = "title";
     public static final String NOTI_CONTENT = "content";
+    public static final String REQUEST_REFUND_MODEL = "RequestRefund";
     private static final String TOKEN_REF = "Tokens";
     public static UserModel currentUser;
     public static CategoryModel categorySelected;
@@ -59,7 +60,7 @@ public class Common {
     public static String formatPrice(double price) {
         if (price != 0)
         {
-            DecimalFormat df = new DecimalFormat("#,##0.00");
+            DecimalFormat df = new DecimalFormat("#,##0");
             df.setRoundingMode(RoundingMode.UP);
             String finalPrice = new StringBuilder(df.format(price)).toString();
             return finalPrice.replace(".",",");

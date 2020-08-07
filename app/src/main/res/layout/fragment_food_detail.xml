@@ -100,9 +100,9 @@
 
                     <ImageView
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="20dp"
                         android:layout_weight="1"
-                        android:src="@drawable/ic_attach_money_black_24dp"/>
+                        android:src="@drawable/rp"/>
 
                     <TextView
                         android:id="@+id/food_price"
@@ -119,14 +119,15 @@
 
                 <com.cepheuen.elegantnumberbutton.view.ElegantNumberButton
                     android:id="@+id/number_button"
-                    android:layout_width="100dp"
-                    android:layout_height="30dp"
-                    android:layout_marginBottom="18dp"
+                    android:layout_width="150dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginTop="8dp"
                     app:backGroundColor="@color/colorAccent"
                     app:finalNumber="20"
                     app:initialNumber="1"
+                    app:textColor="@android:color/white"
                     app:textSize="8sp"/>
 
             </LinearLayout>

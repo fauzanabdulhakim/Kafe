@@ -37,7 +37,7 @@ public class MenuViewModel extends ViewModel implements CategoryCallBackListener
         return categoryListMultable;
     }
 
-    private void loadCategories() {
+    public void loadCategories() {
         List<CategoryModel> temList = new ArrayList<>();
         DatabaseReference categoryRef = FirebaseDatabase.getInstance().getReference(Common.CATEGORY_REF);
         categoryRef.addListenerForSingleValueEvent(new ValueEventListener() {

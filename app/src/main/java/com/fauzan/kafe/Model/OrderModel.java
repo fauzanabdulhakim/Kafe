@@ -4,7 +4,7 @@ import com.fauzan.kafe.Database.CartItem;
 
 import java.util.List;
 
-public class Order {
+public class OrderModel {
     private String userId,userName,userPhone,shippingAddress,comment,transactionId;
     private double lat,lng,totalPayment,finalPayment;
     private boolean cod;
@@ -14,7 +14,7 @@ public class Order {
     private String orderNumber;
     private int orderStatus;
 
-    public Order() {
+    public OrderModel() {
     }
 
     public String getUserId() {

@@ -18,8 +18,8 @@ import com.fauzan.kafe.EventBus.MenuItemBack;
 import com.fauzan.kafe.EventBus.PopularCategoryClick;
 import com.fauzan.kafe.Model.CategoryModel;
 import com.fauzan.kafe.Model.FoodModel;
+import com.fauzan.kafe.ui.location.Location;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.view.MenuItem;
 import android.view.View;
@@ -107,7 +107,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_menu, R.id.nav_food_detail,
-                R.id.nav_view_orders, R.id.nav_cart, R.id.nav_food_list)
+                R.id.nav_view_orders, R.id.nav_location, R.id.nav_cart, R.id.nav_food_list)
                 .setDrawerLayout(drawer)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -159,12 +159,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 if (menuItem.getItemId() !=menuClickId)
                     navController.navigate(R.id.nav_view_orders);
                 break;
+            case R.id.nav_location:
+                location();
+                break;
             case R.id.nav_sign_out:
                 signOut();
                 break;
         }
         menuClickId = menuItem.getItemId();
         return true;
+    }
+
+    public void location() {
+        Intent intent = new Intent(HomeActivity.this, Location.class);
+        startActivity(intent);
     }
 
     private void signOut() {

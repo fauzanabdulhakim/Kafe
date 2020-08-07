@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.fauzan.kafe.Common.Common;
-import com.fauzan.kafe.Model.Order;
+import com.fauzan.kafe.Model.OrderModel;
 import com.fauzan.kafe.R;
 
 import java.text.SimpleDateFormat;
@@ -27,15 +27,24 @@ import butterknife.Unbinder;
 public class MyOrdersAdapter extends RecyclerView.Adapter<MyOrdersAdapter.MyViewHolder> {
 
     private Context context;
-    private List<Order> orderList;
+    private List<OrderModel> orderList;
     private Calendar calendar;
     private SimpleDateFormat simpleDateFormat;
 
-    public MyOrdersAdapter(Context context, List<Order> orderList) {
+    public MyOrdersAdapter(Context context, List<OrderModel> orderList) {
         this.context = context;
         this.orderList = orderList;
         calendar = Calendar.getInstance();
         simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    }
+
+    public OrderModel getItemAtPosition(int pos)
+    {
+        return orderList.get(pos);
+    }
+    public void setItemAtPosition(int pos , OrderModel item)
+    {
+        orderList.set(pos,item);
     }
 
     @NonNull
@@ -54,7 +63,7 @@ public class MyOrdersAdapter extends RecyclerView.Adapter<MyOrdersAdapter.MyView
         holder.txt_order_date.setText(new StringBuilder(Common.getDateOfWeek(calendar.get(Calendar.DAY_OF_WEEK)))
         .append(" ")
         .append(simpleDateFormat.format(date)));
-        holder.txt_order_number.setText(new StringBuilder("Order number: ").append(orderList.get(position).getOrderNumber()));
+        holder.txt_order_number.setText(new StringBuilder("Order No: ").append(orderList.get(position).getOrderNumber()));
         holder.txt_order_comment.setText(new StringBuilder("Comment: ").append(orderList.get(position).getComment()));
         holder.txt_order_status.setText(new StringBuilder("Status: ").append(Common.convertStatusToText(orderList.get(position).getOrderStatus())));
 

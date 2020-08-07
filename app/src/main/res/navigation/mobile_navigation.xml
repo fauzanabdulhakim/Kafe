@@ -30,6 +30,12 @@
         tools:layout="@layout/fragment_view_order" />
 
     <fragment
+        android:id="@+id/nav_location"
+        android:name="com.fauzan.kafe.ui.location.LocationFragment"
+        android:label="@string/menu_location"
+        tools:layout="@layout/fragment_location" />
+
+    <fragment
         android:id="@+id/nav_cart"
         android:name="com.fauzan.kafe.ui.cart.CartFragment"
         android:label="@string/menu_cart"

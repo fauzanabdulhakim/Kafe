@@ -34,6 +34,14 @@
 
     </group>
 
+    <group android:id="@+id/location_group">
+        <item
+            android:id="@+id/nav_location"
+            android:icon="@drawable/ic_baseline_location_on_24"
+            android:title="@string/menu_location" />
+
+    </group>
+
     <group android:id="@+id/user_group">
         <item
             android:id="@+id/nav_sign_out"

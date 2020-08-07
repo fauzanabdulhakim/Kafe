@@ -1,10 +1,10 @@
 package com.fauzan.kafe.Callback;
 
-import com.fauzan.kafe.Model.Order;
+import com.fauzan.kafe.Model.OrderModel;
 
 import java.util.List;
 
 public interface ILoadOrderCallbackListener {
-    void onLoadOrderSuccess(List<Order> orderList);
+    void onLoadOrderSuccess(List<OrderModel> orderList);
     void onLoadOrderFailed(String message);
 }

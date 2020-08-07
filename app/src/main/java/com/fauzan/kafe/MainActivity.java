@@ -94,7 +94,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init(){
-        providers = Arrays.asList(new AuthUI.IdpConfig.PhoneBuilder().build());
+        providers = Arrays.asList(new AuthUI.IdpConfig.PhoneBuilder().build(),
+                new AuthUI.IdpConfig.EmailBuilder().build());
+
+
         userRef = FirebaseDatabase.getInstance().getReference(Common.USER_REFERENCES);
         firebaseAuth = FirebaseAuth.getInstance();
         dialog = new SpotsDialog.Builder().setCancelable(false).setContext(this).build();
@@ -277,8 +280,10 @@ public class MainActivity extends AppCompatActivity {
 
         startActivityForResult(AuthUI.getInstance()
                 .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .build(),APP_REQUEST_CODE);
+                .setLogo(R.drawable.cafe)
+                .setTheme(R.style.LoginTheme)
+                .setAvailableProviders(providers).build(),
+                APP_REQUEST_CODE);
     }
 
     @Override

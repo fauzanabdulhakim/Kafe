@@ -44,6 +44,7 @@ dependencies {
     //Firebase
     implementation 'com.google.firebase:firebase-database:19.0.0'
     implementation 'com.google.firebase:firebase-auth:19.0.0'
+
     //Retrofit2
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.7.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.7.0'
@@ -69,5 +70,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:17.0.0'
 
     implementation 'com.braintreepayments.api:drop-in:4.1.1'
+
+    implementation 'com.androidwidgets:formatedittext:0.2.0'
 
 }
