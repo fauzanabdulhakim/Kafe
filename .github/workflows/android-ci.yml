@@ -1,0 +1,43 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Security Check - Guard Against Credential Leakage
+        run: |
+          echo "Scanning application sources for accidental credential leaks..."
+          if grep -rnI --exclude="*.local" --exclude-dir="build" "kafe-fb622" app/; then
+            echo "ERROR: Found live project identifier 'kafe-fb622' committed in app source!"
+            exit 1
+          fi
+          echo "Credential scan passed: 0 live secrets found."
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest --no-daemon --stacktrace
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
